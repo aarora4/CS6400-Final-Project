@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class=container>
+    <div class="bg"></div>
+    <h1 style="font-size:35px; font-family: Montserrat, sans-serif; font-weight: 1000;">{% block title %} Movie Name {% endblock %}</h1>
+    <form action="/recomendation" method="POST" class="autocomplete" autocomplete="off">
+        <input type="text" id="movie" name="Name" placeholder="The Lord of the Rings: The Return of the King" style="width:350px; height: 40px; border-radius: 15px; border: none; padding-left: 10px;">
+        <input  type="submit" name="red" value ="Submit" style="height: 45px; border-radius: 15px; border: none;">
+    </form>
+
+</div>
+    <script>
+        function getInputValue(){
+            // Selecting the input element and get its value 
+            var inputVal = document.getElementById("movie").value;
+            
+            // Displaying the value
+            alert(inputVal);
+        }
+    </script>
+    <style>
+        .container {
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .bg {
+            /* The image used */
+            background-image: linear-gradient(to bottom, rgba(245, 246, 252, 0.0), rgba(0, 0, 0, 0.4)), url("background.jpeg");
+        
+            /* Full height */
+            height: 100%; 
+            width: 100%;
+        
+            /* Center and scale the image nicely */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: absolute;
+            margin-top: 360px;
+            z-index: -1;
+
+
+            
+        }
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+          }
+          
+          
+          .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            /*position the autocomplete items to be the same width as the container:*/
+            top: 100%;
+            left: 0;
+            right: 0;
+          }
+          
+          .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff; 
+            border-bottom: 1px solid #d4d4d4; 
+          }
+          
+          /*when hovering an item:*/
+          .autocomplete-items div:hover {
+            background-color: #e9e9e9; 
+          }
+          
+          /*when navigating through the items using the arrow keys:*/
+          .autocomplete-active {
+            background-color: DodgerBlue !important; 
+            color: #ffffff; 
+          }
+
+    </style>
+
+    <script>
+        function autocomplete(inp, arr) {
+          /*the autocomplete function takes two arguments,
+          the text field element and an array of possible autocompleted values:*/
+          var currentFocus;
+          /*execute a function when someone writes in the text field:*/
+          inp.addEventListener("input", function(e) {
+              var a, b, i, val = this.value;
+              /*close any already open lists of autocompleted values*/
+              closeAllLists();
+              if (!val) { return false;}
+              currentFocus = -1;
+              /*create a DIV element that will contain the items (values):*/
+              a = document.createElement("DIV");
+              a.setAttribute("id", this.id + "autocomplete-list");
+              a.setAttribute("class", "autocomplete-items");
+              /*append the DIV element as a child of the autocomplete container:*/
+              this.parentNode.appendChild(a);
+              /*for each item in the array...*/
+              for (i = 0; i < arr.length; i++) {
+                /*check if the item starts with the same letters as the text field value:*/
+                if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                  /*create a DIV element for each matching element:*/
+                  b = document.createElement("DIV");
+                  /*make the matching letters bold:*/
+                  b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                  b.innerHTML += arr[i].substr(val.length);
+                  /*insert a input field that will hold the current array item's value:*/
+                  b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                  /*execute a function when someone clicks on the item value (DIV element):*/
+                  b.addEventListener("click", function(e) {
+                      /*insert the value for the autocomplete text field:*/
+                      inp.value = this.getElementsByTagName("input")[0].value;
+                      /*close the list of autocompleted values,
+                      (or any other open lists of autocompleted values:*/
+                      closeAllLists();
+                  });
+                  a.appendChild(b);
+                }
+              }
+          });
+          /*execute a function presses a key on the keyboard:*/
+          inp.addEventListener("keydown", function(e) {
+              var x = document.getElementById(this.id + "autocomplete-list");
+              if (x) x = x.getElementsByTagName("div");
+              if (e.keyCode == 40) {
+                /*If the arrow DOWN key is pressed,
+                increase the currentFocus variable:*/
+                currentFocus++;
+                /*and and make the current item more visible:*/
+                addActive(x);
+              } else if (e.keyCode == 38) { //up
+                /*If the arrow UP key is pressed,
+                decrease the currentFocus variable:*/
+                currentFocus--;
+                /*and and make the current item more visible:*/
+                addActive(x);
+              } else if (e.keyCode == 13) {
+                /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                e.preventDefault();
+                if (currentFocus > -1) {
+                  /*and simulate a click on the "active" item:*/
+                  if (x) x[currentFocus].click();
+                }
+              }
+          });
+          function addActive(x) {
+            /*a function to classify an item as "active":*/
+            if (!x) return false;
+            /*start by removing the "active" class on all items:*/
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            /*add class "autocomplete-active":*/
+            x[currentFocus].classList.add("autocomplete-active");
+          }
+          function removeActive(x) {
+            /*a function to remove the "active" class from all autocomplete items:*/
+            for (var i = 0; i < x.length; i++) {
+              x[i].classList.remove("autocomplete-active");
+            }
+          }
+          function closeAllLists(elmnt) {
+            /*close all autocomplete lists in the document,
+            except the one passed as an argument:*/
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+              if (elmnt != x[i] && elmnt != inp) {
+                x[i].parentNode.removeChild(x[i]);
+              }
+            }
+          }
+          /*execute a function when someone clicks in the document:*/
+          document.addEventListener("click", function (e) {
+              closeAllLists(e.target);
+          });
+        }
+        
+        /*An array containing all the country names in the world:*/
+        var countries = ['Lock, Stock and Two Smoking Barrels', 'Léon: The Professional', 'Taxi Driver', 'Lola rennt', 'Back to the Future', 'Predator', 'Snatch', 'Scarface', 'Pretty Woman', 'The Big Lebowski', 'Match Point', 'The Untouchables', 'Charlie and the Chocolate Factory', 'The Lord of the Rings: The Fellowship of the Ring', 'The Lord of the Rings: The Two Towers', 'The Lord of the Rings: The Return of the King', 'The Lord of the Rings', 'O Brother, Where Art Thou?', 'Groundhog Day', 'Donnie Darko', 'Brokeback Mountain', 'All Quiet on the Western Front', 'Der Himmel über Berlin', 'Breaking the Waves', '48 Hrs.', 'Star Trek: The Motion Picture', 'Lost in Translation', 'Star Trek II: The Wrath of Khan', 'The Dark Knight', 'Star Trek III: The Search for Spock', "Ocean's Eleven", 'Edward Scissorhands', "Ocean's Twelve", "Breakfast at Tiffany's", 'Back to the Future Part II', 'K-PAX', 'Star Trek IV: The Voyage Home', 'Predator 2', '28 Days Later', 'Star Trek V: The Final Frontier', '20,000 Leagues Under the Sea', 'Star Trek VI: The Undiscovered Country', 'Saw', 'The Fisher King', 'Blown Away', 'The Interpreter', 'Minority Report', 'The Good German', 'The Wizard', 'Jackie Brown', 'A Clockwork Orange', 'Lucky Number Slevin', 'Sin City', 'Sin City: A Dame to Kill For', 'The Name of the Rose', 'Star Trek: Generations', 'Back to the Future Part III', 'Braveheart', 'To Be or Not to Be', 'Star Trek: First Contact', 'Star Trek: Insurrection', 'Star Trek: Nemesis', 'Mean Streets', 'Hotel Rwanda', 'Dead Poets Society', 'North by Northwest', 'Saw III', 'Saw II', 'Indiana Jones and the Kingdom of the Crystal Skull', 'The Terminator', 'Rebecca', "Boys Don't Cry", 'The Outsiders', 'The Bride of Frankenstein', 'Syriana', 'Rumble Fish', 'The Wanderers', 'Stand by Me', "Muriel's Wedding", 'Young Adam', 'The Godfather', 'Some Like It Hot', 'The Godfather Part II', 'Natural Born Killers', 'The Godfather Part III', 'High Fidelity', 'King Kong', 'About a Boy', 'Pocketful of Miracles', 'The War of the Roses', 'Ghost', 'Willy Wonka & the Chocolate Factory', 'Live and Let Die', 'King Kong', 'Oliver Twist', 'Cat on a Hot Tin Roof', 'The King of Comedy', 'Batman', 'Batman Begins', 'The Silence of the Lambs', 'Fargo', 'Underworld', 'The Shawshank Redemption', 'Amadeus', 'Terminator 2: Judgment Day', 'Strange Days', 'The Apartment', "Pirates of the Caribbean: At World's End", 'Bull Durham', 'High Noon', 'Casablanca', 'Barton Fink', 'Riding Giants', "Dave Chappelle's Block Party", 'A River Runs Through It', 'Desert Hearts', 'Terminator 3: Rise of the Machines', 'Meet Joe Black', "Ocean's Thirteen", "Ocean's Eleven", 'La Science des rêves', 'Rio Bravo', 'Swimming Pool', 'Notorious', 'Beverly Hills Cop III', 'Broken Flowers', 'Bruce Almighty', 'Once Upon a Time in America', 'Snow Cake', 'Catwoman', 'True Romance', 'Insomnia', 'Mambo Italiano', 'Mystic River', 'Snakes on a Plane', 'Brother', 'Jurassic Park', 'The Lost World: Jurassic Park', 'Jurassic Park III', 'Inspector Gadget', 'Magnolia', "C'era una volta il West", 'Night on Earth', 'Everything Is Illuminated', 'Eyes Wide Shut', 'Alien', 'The Devil Wears Prada', 'Gegen die Wand', 'Batman Returns', 'A Nightmare on Elm Street', 'Raising Arizona', "Miller's Crossing", 'Rain Man', 'To Catch a Thief', 'Das Boot', 'Inside Man', 'Chocolat', 'Kill Bill: Vol. 2', 'AVP: Alien vs. Predator', "Who's Afraid of Virginia Woolf?", 'French Kiss', 'Capote', 'Garden State', 'Basic Instinct', 'Driving Miss Daisy', 'The Straight Story', 'Snow White and the Seven Dwarfs', 'The English Patient', 'The Chronicles of Narnia: The Lion, the Witch and the Wardrobe', 'Batman Forever', 'Batman & Robin', 'The Life Aquatic with Steve Zissou', 'The Pianist', "Schindler's List", 'Ice Age', 'Vertigo', 'One, Two, Three', 'Cube', 'Mary Poppins', 'The Day After Tomorrow', 'María, llena eres de gracia', 'Cube 2: Hypercube', 'La dolce vita', 'Aliens vs Predator: Requiem', 'Human Nature', 'Leaving Las Vegas', 'A Beautiful Mind', 'Romeo + Juliet', 'Bend It Like Beckham', 'Erin Brockovich', 'Klute', 'The Hole', 'My Own Private Idaho', '21 Grams', 'Pi', 'Bonnie and Clyde', 'Drugstore Cowboy', 'Shaft', 'Shaft', 'Wild at Heart', 'The African Queen', 'Good Will Hunting', 'Being John Malkovich', "Shaft's Big Score!", 'Shaft in Africa', 'Borat: Cultural Learnings of America for Make Benefit Glorious Nation of Kazakhstan', 'The Green Mile', 'Reservoir Dogs', 'Poseidon', 'Monster', 'Johnny Handsome', 'Marnie', 'Love Actually', 'Notting Hill', "One Flew Over the Cuckoo's Nest", 'Scoop', 'Dial M for Murder', 'Ed Wood', 'Casino', 'The Blues Brothers', 'Ladyhawke', 'Once Were Warriors', 'Wallace & Gromit: The Curse of the Were-Rabbit', 'Terminator Salvation', 'Flashdance', 'Psycho', 'The Man with the Golden Arm', "There's Something About Mary", 'Transamerica', 'The Horse Whisperer', 'Basquiat', 'Fight Club', 'The Poseidon Adventure', 'Dogville', 'Spider-Man', 'Spider-Man 2', 'Spider-Man 3', 'Constantine', 'Die Hard', 'Starship Troopers', 'The Mummy', 'The Ring', 'Rear Window', 'Apollo 13', 'The Birds', 'Frenzy', 'The Man Who Knew Too Much', 'To Die For', 'Jaws', 'Jaws 2', 'Jaws: The Revenge', 'Dances with Wolves', 'Life of Brian', '2 Fast 2 Furious', 'Monsters, Inc.', 'Wag the Dog', 'Big Fish', 'Silent Hill', 'The Hours', 'The Da Vinci Code', 'The Conversation', 'The Terminal', 'To Kill a Mockingbird', 'The Grapes of Wrath', 'Titanic', 'Sunset Boulevard', 'Full Metal Jacket', 'E.T. the Extra-Terrestrial', 'Independence Day', 'The Matrix', 'The Matrix Reloaded', 'The Matrix Revolutions', 'Out of Africa', 'Men in Black', 'Men in Black II', 'Poltergeist', 'Munich', 'The Last Samurai', 'Wild Things', 'The Bodyguard', 'Ghostbusters', 'Grease', 'The Ninth Gate', 'A Fish Called Wanda', 'Easy Rider', 'The Killing Fields', 'Trainspotting', 'Interview with the Vampire', 'The Usual Suspects', 'The Wizard of Oz', "Bridget Jones's Diary", 'Angel Heart', 'THX 1138', 'La vita è bella', 'Lost Highway', 'When Harry Met Sally...', 'Catch Me If You Can', 'Requiem for a Dream', 'Butch Cassidy and the Sundance Kid', 'A.I. Artificial Intelligence', 'Dr. No', 'Boyz n the Hood', 'M*A*S*H', 'Troy', 'On the Waterfront', 'Paris, Texas', 'From Russia with Love', 'Goldfinger', 'Thunderball', 'Saw IV', 'Twister', 'Ben-Hur', 'You Only Live Twice', "On Her Majesty's Secret Service", "Harry Potter and the Philosopher's Stone", 'Harry Potter and the Chamber of Secrets', 'Harry Potter and the Prisoner of Azkaban', 'Harry Potter and the Goblet of Fire', 'Harry Potter and the Order of the Phoenix', 'Pearl Harbor', 'Aliens', 'Pulp Fiction', 'Diamonds Are Forever', 'The Man with the Golden Gun', 'Contact', 'Dead Man Walking', 'The Bridges of Madison County', 'The Spy Who Loved Me', 'Pink Flamingos', 'Meet the Fockers', 'The Shining', 'Short Cuts', 'Manhattan', 'Moonraker', 'For Your Eyes Only', 'Octopussy', 'A Streetcar Named Desire', 'Annie Hall', "A Hard Day's Night", 'All About Eve', 'A View to a Kill', 'The Living Daylights', 'Licence to Kill', 'GoldenEye', 'Finding Forrester', 'Four Weddings and a Funeral', 'The Piano', 'Tomorrow Never Dies', 'Top Gun', 'The Sixth Sense', 'The Last Emperor', 'Shaun of the Dead', 'V for Vendetta', 'Face/Off', 'From Dusk Till Dawn', 'Fantasia', 'Gentlemen Prefer Blondes', 'Monty Python and the Holy Grail', 'The Evil Dead', 'Evil Dead II', 'Army of Darkness', 'Harry Potter and the Half-Blood Prince', 'From Hell', 'GoodFellas', 'Gone with the Wind', 'Home Alone', 'Home Alone 2: Lost in New York', 'Little Miss Sunshine', 'Gattaca', 'Gandhi', 'Almost Famous', 'Mr. & Mrs. Smith', 'Mrs. Doubtfire', 'The Fog', 'The Fog', 'Platoon', 'Blue Velvet', 'The Omen', 'City of Angels', 'Cruel Intentions', 'Good Morning, Vietnam', 'Lolita', 'Roman Holiday', "Rosemary's Baby", 'The Omen', 'Se7en', 'Shrek', 'Shrek 2', 'Shrek the Third', 'Aladdin', 'Airplane!', 'An American Werewolf in London', 'Austin Powers: International Man of Mystery', 'Austin Powers: The Spy Who Shagged Me', 'Austin Powers in Goldmember', 'Sleepers', 'JFK', 'Judgment at Nuremberg', 'Moulin Rouge!', 'Playing by Heart', 'The Bridge on the River Kwai', 'The Day the Earth Stood Still', 'Chinatown', 'Forbidden Planet', 'This Island Earth', 'Underworld: Evolution', 'Videodrome', 'American Graffiti', 'Close Encounters of the Third Kind', 'Dune', 'The Assassination of Richard Nixon', 'Strangers on a Train', 'The X Files', 'Willow', 'Dragonslayer', 'Krull', 'A Christmas Story', 'Enemy at the Gates', 'The Mask', 'Black Hawk Down', 'Who Framed Roger Rabbit', 'Saving Private Ryan', 'Sleepless in Seattle', 'Dangerous Liaisons', 'WarGames', 'Total Recall', 'Toy Story', 'Toy Story 2', 'Cool Runnings', 'The Running Man', 'Finding Neverland', 'Sliver', 'Tsotsi', 'Planet of the Apes', 'Planet of the Apes', "Singin' in the Rain", 'The Color Purple', 'A Man for All Seasons', 'Hook', 'A Few Good Men', 'Coffee and Cigarettes', 'The Cincinnati Kid', 'The Best Years of Our Lives', 'The Flintstones', 'The Flintstones in Viva Rock Vegas', "All the President's Men", 'Birdman of Alcatraz', 'Cool Hand Luke', 'Doctor Zhivago', 'Meet Me in St. Louis', 'The Big Sleep', 'The Thomas Crown Affair', 'The Great Dictator', 'Bullitt', 'Blind Date', 'Cars', 'Cinderella Man', 'Dead Man', 'Dawn of the Dead', 'Dawn of the Dead', 'Do the Right Thing', 'Galaxy Quest', 'Gremlins', 'Gremlins 2: The New Batch', 'Godzilla', 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb', 'The Pink Panther', 'The Jazz Singer', 'Lethal Weapon', 'Lethal Weapon 2', 'Lethal Weapon 3', 'Lethal Weapon 4', 'Lawrence of Arabia', 'Halloween', 'Heat', 'Ice Age: The Meltdown', 'Kindergarten Cop', 'Madagascar', 'Mission: Impossible', 'Mission: Impossible II', 'Mission: Impossible III', 'Spaceballs', 'The Maltese Falcon', 'The Magnificent Seven', 'Spartacus', 'Dog Day Afternoon', 'Sweet Smell of Success', 'Seven Years in Tibet', 'The Manchurian Candidate', 'Dirty Harry', 'Eraserhead', 'The China Syndrome', 'The Hustler', 'Sleuth', 'Straw Dogs', 'Stagecoach', 'Double Indemnity'];
+        
+        /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+        autocomplete(document.getElementById("movie"), countries);
+    </script>
+    
+    
+{% endblock %}
+

@@ -1,0 +1,39 @@
+INGEST DATA:
+
+LOAD CSV WITH HEADERS FROM "file:///Users/avi/Downloads/all_df.csv" AS row
+FIELDTERMINATOR ','
+CREATE (:Movies {movieId: row.movie_id, title: row.original_title, overview: row.overview});
+
+LOAD CSV WITH HEADERS FROM "file:///Users/avi/Downloads/edges_df_same_director.csv" AS row
+FIELDTERMINATOR ','
+MATCH (movie1:Movies {movieId: row.source})
+MATCH (movie2:Movies {movieId: row.target})
+MERGE (movie1)-[:SAMEDIRECTOR]->(movie2);
+
+LOAD CSV WITH HEADERS FROM "file:///Users/avi/Downloads/edges_df_same_production.csv" AS row
+FIELDTERMINATOR ','
+MATCH (movie1:Movies {movieId: row.source})
+MATCH (movie2:Movies {movieId: row.target})
+MERGE (movie1)-[:SAMEPRODUCTION]->(movie2);
+
+
+LOAD CSV WITH HEADERS FROM "file:///Users/avi/Downloads/edges_df_same_cast.csv" AS row
+FIELDTERMINATOR ','
+MATCH (movie1:Movies {movieId: row.source})
+MATCH (movie2:Movies {movieId: row.target})
+MERGE (movie1)-[:SAMECAST]->(movie2);
+
+LOAD CSV WITH HEADERS FROM "file:///Users/avi/Downloads/edges_df_similar_keyword.csv" AS row
+FIELDTERMINATOR ','
+MATCH (movie1:Movies {movieId: row.source})
+MATCH (movie2:Movies {movieId: row.target})
+MERGE (movie1)-[:SIMILARKEYWORD]->(movie2);
+
+RECOMMENDATION: 
+
+MATCH (n)-[r]->(n2) WHERE n.title = 'The Lord of the Rings: The Return of the King' RETURN n2, COUNT(r) ORDER BY COUNT(r) DESC
+
+DELETE EVERYTHING: 
+
+MATCH (n)
+DETACH DELETE n
